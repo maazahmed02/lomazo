@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
-db = SQLAlchemy()
+from app import db
 
 # ------------------------------
 # Patient Profile & Background
@@ -13,6 +12,7 @@ class Patient(db.Model):
     dob = db.Column(db.Date)
     gender = db.Column(db.String(10))
     email = db.Column(db.String(120), unique=True)
+    address = db.Column(db.String(120))
     phone = db.Column(db.String(20))
     
     appointments = db.relationship('Appointment', backref='patient', lazy=True)
