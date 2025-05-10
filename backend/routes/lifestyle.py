@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from extensions import db
-from lomazo.backend.models.models import LifestyleRecord
+from ..extensions import db
+from ..models.models import LifestyleRecord
 
 lifestyle_bp = Blueprint('lifestyle', __name__)
 
