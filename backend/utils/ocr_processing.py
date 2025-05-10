@@ -5,7 +5,7 @@ import os
 import requests  # For making HTTP requests to the API endpoint
 from flask import current_app
 from backend.extensions import db
-from backend.models import Document
+from models import Document
 from google.cloud import aiplatform
 
 # Set your API endpoint and key
@@ -77,7 +77,7 @@ def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, ch
         db.session.commit()
         print(f"Saved '{doc_type}' document for patient_id={patient_id} and checkin_id={checkin_id}")
 
-def main(file_path):
+def main(file_path, doc_type, patient_id=None, checkin_id=None):
 
     ext = os.path.splitext(file_path)[-1].lower()
 
@@ -109,14 +109,17 @@ def main(file_path):
 
     # Save the document to the database
     save_to_db(
-    file_path=file_path,
-    extracted_text=text,
-    summary=summary,
-    doc_type='insurance_card',        # UI sends this
-    patient_id=5,                     # UI/session passes this
-    checkin_id=None                   # Optional depending on flow
-)
+        file_path=file_path,
+        extracted_text=text,
+        summary=summary,
+        doc_type=doc_type,
+        patient_id=patient_id,
+        checkin_id=checkin_id
+    )
 
 if __name__ == "__main__":
     file_path = '/Users/zoe/Desktop/lomazo/backend/test_data/MATRULLO_ZOE_20240925_5639.pdf'
-    main(file_path)
+    doc_type = "lab_result"  # Example document type
+    patient_id = 5           # Example patient ID
+    checkin_id = None        # Example check-in ID (optional)
+    main(file_path, doc_type, patient_id, checkin_id)

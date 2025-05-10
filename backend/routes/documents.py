@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, Document
-from utils.ocr_processing import extract_text_from_image, extract_text_from_pdf, process_text_with_ai, handle_heic, save_to_db
+from utils.ocr_processing import extract_text_from_image, extract_text_from_pdf, process_text_with_gemini, handle_heic, save_to_db
 import os
 
 # Create a blueprint for documents
@@ -61,7 +61,7 @@ def upload_document():
         return jsonify({"message": f"Unsupported file type: {ext}"}), 400
     
      # Process the extracted text with the AI model (if necessary)
-    ai_response = process_text_with_ai(extracted_text)
+    ai_response = process_text_with_gemini(extracted_text)
 
     # Optionally, save the processed AI response in the database or return it in the response
     new_document.extracted_text = extracted_text  # Save the raw extracted text
