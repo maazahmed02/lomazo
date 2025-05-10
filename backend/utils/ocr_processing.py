@@ -1,20 +1,17 @@
-import pyheif
 from PIL import Image
 import pytesseract
 from pdf2image import convert_from_path
 import os
 import requests  # For making HTTP requests to the API endpoint
 from flask import current_app
-from extensions import db
-
-from models import Document
+from backend.extensions import db
+from backend.models import Document
+from google.cloud import aiplatform
 
 # Set your API endpoint and key
-api_endpoint = 'https://codestral.mistral.ai/v1/chat/completions'
-api_key = os.environ.get("MISTRAL_API_KEY")
-if not api_key:
-    raise ValueError("MISTRAL_API_KEY environment variable not set!")
-
+PROJECT_ID = "avi-cdtm-hack-team-4688"  # Replace with your Google Cloud Project ID
+REGION = "europe-west3"  # Choose a region where Gemini is available
+aiplatform.init(project=PROJECT_ID, location=REGION)
 
 def extract_text_from_image(file_path):
     image = Image.open(file_path)
@@ -33,23 +30,26 @@ def handle_heic(file_path):
     os.system(f'sips -s format jpeg "{file_path}" --out "{temp_path}"')
     return temp_path
 
-def process_text_with_ai(text):
-    headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
-    }
-    data = {
-        'prompt': f"Process the following extracted text: {text}",
-        'max_tokens': 150,  # Adjust as needed
-        'temperature': 0.7,  # Adjust as needed
-    }
+def process_text_with_gemini(text):
+    model = aiplatform.GenerativeModel(model_name="gemini-pro") # Or "gemini-pro-vision" for multimodal
 
-    response = requests.post(api_endpoint, headers=headers, json=data)
+    prompt = f"Process the following extracted text: {text}"
 
-    if response.status_code == 200:
-        return response.json().get('choices', [{}])[0].get('text', '').strip()
-    else:
-        return f"Error: Received status code {response.status_code} from API"
+    response = model.generate_content(
+        prompt,
+        generation_config={
+            "max_output_tokens": 150,  # Adjust as needed
+            "temperature": 0.7,      # Adjust as needed
+            "top_p": 0.8,             # Optional: Adjust as needed
+            "top_k": 40,             # Optional: Adjust as needed
+        },
+    )
+
+    try:
+        return response.text.strip()
+    except AttributeError:
+        return "Error: Could not extract text from Gemini response."
+
     
 def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, checkin_id=None):
     """
@@ -78,8 +78,6 @@ def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, ch
         print(f"Saved '{doc_type}' document for patient_id={patient_id} and checkin_id={checkin_id}")
 
 def main(file_path):
-    if not api_key or api_key == "default_api_key_if_not_set":
-        raise ValueError("API key not found in environment variables.")
 
     ext = os.path.splitext(file_path)[-1].lower()
 
@@ -105,8 +103,8 @@ def main(file_path):
     print(text)
 
     # Process the extracted text with the AI model
-    summary = process_text_with_ai(text)
-    print("AI Response:")
+    summary = process_text_with_gemini(text)
+    print("AI Response (Gemini):")
     print(summary)
 
     # Save the document to the database
@@ -120,5 +118,5 @@ def main(file_path):
 )
 
 if __name__ == "__main__":
-    file_path = 'test_data/MATRULLO_ZOE_20240925_5639.pdf'
+    file_path = '/Users/zoe/Desktop/lomazo/backend/test_data/MATRULLO_ZOE_20240925_5639.pdf'
     main(file_path)
