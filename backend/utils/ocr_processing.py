@@ -38,7 +38,7 @@ def process_text_with_gemini(text):
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""Hey! I am taking part in an hackathon and you have to be able to read pdf about medical stuff and summarise it properly so that doctors can have a nice summary of important data
+                types.Part.from_text(text="""Now you will get in input some text that i retrieved from medical files. I want to use your model in order to summarize the information in the data in a very plain way, so that the doctor can avoid reading through the actual document. I want to have first the dococument type (Blood work, vaccine certificate, etc...) and then the very important medical information contained in the text that the doctor will be interested in (e.g. blood values for blood work). Since I will be using your answer right away and give it to the web app, please avoid adding sentences before summarizing the content
                 """),
             ],
         ),
@@ -52,13 +52,17 @@ def process_text_with_gemini(text):
     generate_content_config = types.GenerateContentConfig(
         response_mime_type="text/plain",
     )
-
+    full_response = ""
     for chunk in client.models.generate_content_stream(
         model=model,
         contents=contents,
         config=generate_content_config,
     ):
-        return(chunk.text)
+        if chunk.text:
+            print(chunk.text, end="")  # For streaming to terminal
+            full_response += chunk.text
+
+    return full_response
 
     
 
