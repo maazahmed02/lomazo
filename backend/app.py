@@ -4,8 +4,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from extensions import db, migrate  # Import db and migrate from extensions.py
-from create_app import create_app
+from backend.extensions import db, migrate  # Import db and migrate from extensions.py
+from backend.create_app import create_app
 
 # Create the Flask app instance
 app = create_app()
