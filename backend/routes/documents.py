@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, Document
-from utils.ocr_processing import extract_text_from_image, extract_text_from_pdf, process_text_with_gemini, handle_heic, save_to_db
+from utils.ocr_processing import extract_text_from_image, extract_text_from_pdf, process_text_with_gemini, handle_heic
 import os
 
 # Create a blueprint for documents
