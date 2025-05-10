@@ -4,9 +4,10 @@ import pytesseract
 from pdf2image import convert_from_path
 import os
 import requests  # For making HTTP requests to the API endpoint
+from flask import current_app
+from extensions import db
 
-from models.models import db, Document
-from app import app
+from models import Document
 
 # Set your API endpoint and key
 api_endpoint = 'https://codestral.mistral.ai/v1/chat/completions'
@@ -62,7 +63,7 @@ def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, ch
         patient_id (int, optional): Patient foreign key.
         checkin_id (int, optional): Check-in foreign key if applicable.
     """
-    with app.app_context():
+    with current_app.app_context():
         doc = Document(
             patient_id=patient_id,
             checkin_id=checkin_id,

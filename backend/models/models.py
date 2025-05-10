@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from app import db
+from extensions import db  # Import db from extensions.py
 
 # ------------------------------
 # Patient Profile & Background
