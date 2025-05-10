@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 
-from extensions import db, migrate  # Import db and migrate from extensions.py
-from create_app import create_app
+from backend.extensions import db, migrate  # Import db and migrate from extensions.py
+from backend.create_app import create_app
 
 # Create the Flask app instance
 app = create_app()
