@@ -58,11 +58,11 @@ def process_text_with_gemini(text):
         contents=contents,
         config=generate_content_config,
     ):
-        print(chunk.text, end="")
+        return(chunk.text)
 
     
 
-def main(file_path, doc_type, patient_id=None, checkin_id=None):
+def main(file_path, file_type=None, patient_id=None, checkin_id=None):
 
     ext = os.path.splitext(file_path)[-1].lower()
 
@@ -87,10 +87,7 @@ def main(file_path, doc_type, patient_id=None, checkin_id=None):
     print("Extracted Text:")
     print(text)
 
-    # Process the extracted text with the AI model
-    summary = process_text_with_gemini(text)
-    print("AI Response (Gemini):")
-    print(summary)
+    return process_text_with_gemini(text)
 
 if __name__ == "__main__":
     file_path = '/Users/zoe/Desktop/lomazo/backend/test_data/MATRULLO_ZOE_20240925_5639.pdf'
