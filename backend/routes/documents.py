@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 from lomazo.backend.services.process_and_save_doc import process_and_save_document
+from lomazo.backend.utils.ocr_processing import process_document
 
 documents_bp = Blueprint('documents', __name__)
 
