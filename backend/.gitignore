@@ -1,0 +1,9 @@
+# Ignore virtual environment
+venv/
+
+# Python bytecode files
+*.pyc
+
+# IDE-specific files (e.g. VS Code, PyCharm)
+.vscode/
+.idea/
