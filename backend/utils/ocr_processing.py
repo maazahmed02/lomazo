@@ -6,7 +6,6 @@ from google.cloud import aiplatform
 from google import genai
 from google.genai import types
 from flask import current_app
-from create_app import create_app
 
 # Set your API endpoint and key
 PROJECT_ID = "avi-cdtm-hack-team-4688"  # Replace with your Google Cloud Project ID
@@ -65,6 +64,41 @@ def process_text_with_gemini(text):
             full_response += chunk.text
 
     return full_response
+
+def process_document(file_path, file_type=None, patient_id=None, checkin_id=None):
+    ext = os.path.splitext(file_path)[-1].lower()
+
+    if ext == '.pdf':
+        print("Processing PDF...")
+        text = extract_text_from_pdf(file_path)
+
+    elif ext == '.heic':
+        print("Converting HEIC to JPEG...")
+        jpeg_path = handle_heic(file_path)
+        text = extract_text_from_image(jpeg_path)
+        os.remove(jpeg_path)
+
+    elif ext in ['.jpg', '.jpeg', '.png', '.tiff']:
+        print("Processing image...")
+        text = extract_text_from_image(file_path)
+
+    else:
+        print(f"Unsupported file type: {ext}")
+        return None
+
+    print("Extracted Text:")
+    print(text)
+
+    processed = process_text_with_gemini(text)
+
+    return {
+        "file_path": file_path,
+        "extracted_text": text,
+        "summary": processed,
+        "doc_type": file_type,
+        "patient_id": patient_id,
+        "checkin_id": checkin_id
+    }
 
 def main(file_path, file_type=None, patient_id=None, checkin_id=None):
     ext = os.path.splitext(file_path)[-1].lower()

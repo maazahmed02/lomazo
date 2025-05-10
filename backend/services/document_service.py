@@ -1,5 +1,7 @@
 from flask import current_app
 from extensions import db
+from models import Document  # Import the Document model
+import os  # Import the os module
 
 
 def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, checkin_id=None):
