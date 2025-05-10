@@ -5,6 +5,9 @@ from pdf2image import convert_from_path
 import os
 import requests  # For making HTTP requests to the API endpoint
 
+from models.models import db, Document
+from app import app
+
 # Set your API endpoint and key
 api_endpoint = 'https://codestral.mistral.ai/v1/chat/completions'
 api_key = os.environ.get("MISTRAL_API_KEY")
@@ -46,6 +49,32 @@ def process_text_with_ai(text):
         return response.json().get('choices', [{}])[0].get('text', '').strip()
     else:
         return f"Error: Received status code {response.status_code} from API"
+    
+def save_to_db(file_path, extracted_text, summary, doc_type, patient_id=None, checkin_id=None):
+    """
+    Save document data into the database, with dynamic metadata.
+    
+    Args:
+        file_path (str): Path to the uploaded file.
+        extracted_text (str): OCR or parsed content.
+        summary (str): AI-parsed/processed result.
+        doc_type (str): Type of document: 'lab_result', 'insurance_card', etc.
+        patient_id (int, optional): Patient foreign key.
+        checkin_id (int, optional): Check-in foreign key if applicable.
+    """
+    with app.app_context():
+        doc = Document(
+            patient_id=patient_id,
+            checkin_id=checkin_id,
+            type=doc_type,
+            original_filename=os.path.basename(file_path),
+            file_path=file_path,
+            extracted_text=extracted_text,
+            structured_data={"summary": summary}
+        )
+        db.session.add(doc)
+        db.session.commit()
+        print(f"Saved '{doc_type}' document for patient_id={patient_id} and checkin_id={checkin_id}")
 
 def main(file_path):
     if not api_key or api_key == "default_api_key_if_not_set":
@@ -78,6 +107,16 @@ def main(file_path):
     summary = process_text_with_ai(text)
     print("AI Response:")
     print(summary)
+
+    # Save the document to the database
+    save_to_db(
+    file_path=file_path,
+    extracted_text=text,
+    summary=summary,
+    doc_type='insurance_card',        # UI sends this
+    patient_id=5,                     # UI/session passes this
+    checkin_id=None                   # Optional depending on flow
+)
 
 if __name__ == "__main__":
     file_path = 'test_data/MATRULLO_ZOE_20240925_5639.pdf'
