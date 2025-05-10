@@ -5,6 +5,7 @@ import os
 from google.cloud import aiplatform
 from google import genai
 from google.genai import types
+from services.document_service import save_to_db
 
 # Set your API endpoint and key
 PROJECT_ID = "avi-cdtm-hack-team-4688"  # Replace with your Google Cloud Project ID
@@ -91,10 +92,23 @@ def main(file_path, file_type=None, patient_id=None, checkin_id=None):
     print("Extracted Text:")
     print(text)
 
-    return process_text_with_gemini(text)
+    processed = process_text_with_gemini(text)
+
+    try:
+        save_to_db(
+            file_path=file_path,
+            extracted_text=text,
+            summary=processed,
+            doc_type=file_type,
+            patient_id=patient_id,
+            checkin_id=checkin_id
+        )
+        print("Document saved to database.")
+    except Exception as e:
+        print(f"Error saving document to database: {e}")
 
 if __name__ == "__main__":
-    file_path = '/Users/zoe/Desktop/lomazo/backend/test_data/MATRULLO_ZOE_20240925_5639.pdf'
+    file_path = 'test_data/MATRULLO_ZOE_20240925_5639.pdf'
     main(file_path)
 
 
