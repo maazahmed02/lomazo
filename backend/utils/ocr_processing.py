@@ -62,7 +62,7 @@ def process_text_with_gemini(text):
 
     
 
-def main(file_path):
+def main(file_path, doc_type, patient_id=None, checkin_id=None):
 
     ext = os.path.splitext(file_path)[-1].lower()
 
