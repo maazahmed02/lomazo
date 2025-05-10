@@ -7,8 +7,13 @@ def create_app():
     app = Flask(__name__)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # Importing here to avoid circular import
+    # Import blueprints
     from backend.routes.documents import documents_bp
+    from backend.routes.lifestyle import lifestyle_bp
+    from backend.routes.measurement import measurement_bp
+    from backend.routes.patientcondition import patientcondition_bp
+    from backend.routes.vaccinationrecord import vaccinationrecord_bp
+    from backend.routes.familyhistory import familyhistory_bp
 
     # Database URI configuration
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -19,7 +24,12 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Register Blueprints
-    app.register_blueprint(documents_bp, url_prefix='/documents')
+    # Register all blueprints with /api prefix
+    app.register_blueprint(documents_bp, url_prefix='/api/documents')
+    app.register_blueprint(lifestyle_bp, url_prefix='/api')
+    app.register_blueprint(measurement_bp, url_prefix='/api')
+    app.register_blueprint(patientcondition_bp, url_prefix='/api')
+    app.register_blueprint(vaccinationrecord_bp, url_prefix='/api')
+    app.register_blueprint(familyhistory_bp, url_prefix='/api')
 
     return app

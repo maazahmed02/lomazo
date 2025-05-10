@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from extensions import db
-from lomazo.backend.models.models import Measurement
+from ..extensions import db
+from ..models.models import Measurement
 
 measurement_bp = Blueprint('measurement', __name__)
 

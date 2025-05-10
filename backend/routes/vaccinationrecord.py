@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from extensions import db
-from lomazo.backend.models.models import VaccinationRecord
+from ..extensions import db
+from ..models.models import VaccinationRecord
 
 vaccinationrecord_bp = Blueprint('vaccinationrecord', __name__)
 

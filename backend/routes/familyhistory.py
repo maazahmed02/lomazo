@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from extensions import db
-from lomazo.backend.models.models import FamilyHistoryRecord
+from ..extensions import db
+from ..models.models import FamilyHistoryRecord
 
 familyhistory_bp = Blueprint('familyhistory', __name__)
 
