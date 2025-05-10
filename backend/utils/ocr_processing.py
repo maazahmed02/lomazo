@@ -38,7 +38,7 @@ def process_text_with_gemini(text):
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""Now you will get in input some text that i retrieved from medical files. I want to use your model in order to summarize the information in the data in a very plain way, so that the doctor can avoid reading through the actual document. I want to have first the dococument type (Blood work, vaccine certificate, etc...) and then the very important medical information contained in the text that the doctor will be interested in (e.g. blood values for blood work). Since I will be using your answer right away and give it to the web app, please avoid adding sentences before summarizing the content
+                types.Part.from_text(text="""Du erhältst nun einen Text, den ich aus medizinischen Dokumenten extrahiert habe. Ich möchte dein Modell nutzen, um die Informationen darin sehr einfach zusammenzufassen, damit die Ärztin oder der Arzt das eigentliche Dokument nicht vollständig lesen muss. Zuerst soll der Dokumenttyp genannt werden (z. B. Blutbild, Impfnachweis etc.), danach die wichtigsten medizinischen Informationen, die für die ärztliche Einschätzung relevant sind (z. B. Blutwerte bei einem Blutbild). Da ich deine Antwort direkt weiterverwende und in eine Webanwendung einbinde, bitte keine einleitenden Sätze vor der Zusammenfassung schreiben.
                 """),
             ],
         ),
