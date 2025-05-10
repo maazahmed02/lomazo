@@ -38,7 +38,7 @@ def process_text_with_gemini(text):
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""Hey! I am taking part in an hackathon and you have to be able to read pdf about medical stuff and summarise it properly so that doctors can have a nice summary of important data
+                types.Part.from_text(text="""Du erhältst nun einen Text, den ich aus medizinischen Dokumenten extrahiert habe. Ich möchte dein Modell nutzen, um die Informationen darin sehr einfach zusammenzufassen, damit die Ärztin oder der Arzt das eigentliche Dokument nicht vollständig lesen muss. Zuerst soll der Dokumenttyp genannt werden (z. B. Blutbild, Impfnachweis etc.), danach die wichtigsten medizinischen Informationen, die für die ärztliche Einschätzung relevant sind (z. B. Blutwerte bei einem Blutbild). Da ich deine Antwort direkt weiterverwende und in eine Webanwendung einbinde, bitte keine einleitenden Sätze vor der Zusammenfassung schreiben.
                 """),
             ],
         ),
@@ -52,13 +52,17 @@ def process_text_with_gemini(text):
     generate_content_config = types.GenerateContentConfig(
         response_mime_type="text/plain",
     )
-
+    full_response = ""
     for chunk in client.models.generate_content_stream(
         model=model,
         contents=contents,
         config=generate_content_config,
     ):
-        return(chunk.text)
+        if chunk.text:
+            print(chunk.text, end="")  # For streaming to terminal
+            full_response += chunk.text
+
+    return full_response
 
     
 
