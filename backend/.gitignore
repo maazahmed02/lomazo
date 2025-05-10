@@ -7,3 +7,7 @@ venv/
 # IDE-specific files (e.g. VS Code, PyCharm)
 .vscode/
 .idea/
+
+# Database files
+app.db
+*.sqlite3
