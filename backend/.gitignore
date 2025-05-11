@@ -1,15 +1,38 @@
-# Ignore virtual environment
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 venv/
+ENV/
 
-# Python bytecode files
-*.pyc
+# Environment variables
+.env
+.env.*
 
-# IDE-specific files (e.g. VS Code, PyCharm)
-.vscode/
-.idea/
+# Uploads & temp files
+temp/
+uploads/
 
-# Database files
-instance/app.db
-*.sqlite3
+# Log files
+*.log
 
 .DS_Store

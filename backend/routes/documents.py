@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, current_app
-from models.models import db, Document
 from utils.ocr_processing import extract_text_from_image, extract_text_from_pdf, process_text_with_gemini, handle_heic
 import os
 import base64
@@ -63,19 +62,7 @@ def upload_document():
         # Process the extracted text with the AI model
         ai_response = process_text_with_gemini(extracted_text)
 
-        # Create and save the document record
-        new_document = Document(
-            patient_id=patient_id,
-            file_path=temp_file_path,
-            original_filename=file.filename,
-            type=file_type,
-            extracted_text=extracted_text,
-            structured_data=ai_response
-        )
-
-        db.session.add(new_document)
-        db.session.commit()
-
+        # Return the response without database storage
         return jsonify({
             "message": "Document uploaded and processed successfully", 
             "file_path": temp_file_path,
@@ -85,7 +72,6 @@ def upload_document():
         }), 201
 
     except Exception as e:
-        db.session.rollback()
         return jsonify({"message": f"Error processing document: {str(e)}"}), 500
 
 
@@ -140,19 +126,7 @@ def upload_document_base64():
         # Process the extracted text with the AI model
         ai_response = process_text_with_gemini(extracted_text)
         
-        # Create and save the document record
-        new_document = Document(
-            patient_id=patient_id,
-            file_path=temp_file_path,
-            original_filename=filename,
-            type=file_type,
-            extracted_text=extracted_text,
-            structured_data=ai_response
-        )
-        
-        db.session.add(new_document)
-        db.session.commit()
-        
+        # Return the response without database storage
         return jsonify({
             "message": "Document uploaded and processed successfully", 
             "file_path": temp_file_path,
@@ -162,7 +136,6 @@ def upload_document_base64():
         }), 201
         
     except Exception as e:
-        db.session.rollback()
         return jsonify({"message": f"Error processing document: {str(e)}"}), 500
 
 

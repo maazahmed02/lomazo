@@ -4,16 +4,17 @@ from pdf2image import convert_from_path
 import os
 import requests  # For making HTTP requests to the API endpoint
 from flask import current_app
-from extensions import db
-from models.models import Document
 import traceback
 import re
 from googletrans import Translator
 from langdetect import detect as langdetect
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_REGION
 
 # Set your API endpoint and key
-PROJECT_ID = "avi-cdtm-hack-team-4688"  # Replace with your Google Cloud Project ID
-REGION = "europe-west3"  # Choose a region where Gemini is available
+PROJECT_ID = GOOGLE_CLOUD_PROJECT_ID
+REGION = GOOGLE_CLOUD_REGION
 
 # Initialize translator
 translator = Translator()
@@ -705,47 +706,7 @@ def format_document_response(response):
     
     return all_languages
 
-def save_to_db(file_path, extracted_text, ai_response, doc_type, patient_id=None, checkin_id=None):
-    """
-    Save document data into the database with multi-language support
-    
-    Args:
-        file_path (str): Path to the uploaded file.
-        extracted_text (str): OCR or parsed content.
-        ai_response (dict): AI-parsed/processed result with all languages.
-        doc_type (str): Type of document.
-        patient_id (int, optional): Patient foreign key.
-        checkin_id (int, optional): Check-in foreign key if applicable.
-    """
-    try:
-        # Format the response for better display
-        formatted_response = format_document_response(ai_response)
-        
-        with current_app.app_context():
-            doc = Document(
-                patient_id=patient_id,
-                checkin_id=checkin_id,
-                type=doc_type,
-                original_filename=os.path.basename(file_path),
-                file_path=file_path,
-                extracted_text=extracted_text,
-                structured_data={
-                    "raw_response": ai_response,
-                    "formatted": formatted_response,
-                    "document_type": ai_response["document_type"],
-                    "original_language": ai_response["original_language"],
-                    "available_languages": list(formatted_response.keys())
-                }
-            )
-            db.session.add(doc)
-            db.session.commit()
-            return doc.id
-    except Exception as e:
-        traceback.print_exc()
-        db.session.rollback()
-        return None
-
-def main(file_path, doc_type, patient_id=None, checkin_id=None):
+def main(file_path, doc_type, patient_id=None):
     try:
         ext = os.path.splitext(file_path)[-1].lower()
 
@@ -766,24 +727,25 @@ def main(file_path, doc_type, patient_id=None, checkin_id=None):
         # Process the extracted text with the AI model
         ai_response = process_text_with_gemini(text)
 
-        # Save the document to the database
-        doc_id = save_to_db(
-            file_path=file_path,
-            extracted_text=text,
-            ai_response=ai_response,
-            doc_type=doc_type,
-            patient_id=patient_id,
-            checkin_id=checkin_id
-        )
+        # Format the response for frontend display
+        formatted_response = format_document_response(ai_response)
         
-        return doc_id
+        # Return the processed data
+        return {
+            "extracted_text": text,
+            "ai_response": ai_response,
+            "formatted_response": formatted_response,
+            "document_type": ai_response["document_type"],
+            "original_language": ai_response["original_language"],
+            "available_languages": list(formatted_response.keys())
+        }
     except Exception as e:
         traceback.print_exc()
-        return None
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     file_path = '/Users/zoe/Desktop/lomazo/backend/test_data/MATRULLO_ZOE_20240925_5639.pdf'
     doc_type = "lab_result"  # Example document type
     patient_id = 5           # Example patient ID
-    checkin_id = None        # Example check-in ID (optional)
-    main(file_path, doc_type, patient_id, checkin_id)
+    result = main(file_path, doc_type, patient_id)
+    print(f"Processing complete: {len(result['extracted_text'])} characters extracted")

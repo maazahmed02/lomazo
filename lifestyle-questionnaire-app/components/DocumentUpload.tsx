@@ -9,6 +9,7 @@ import { Colors } from '@/constants/Colors';
 import { useAppContext } from '@/context/AppContext';
 import * as FileSystem from 'expo-file-system';
 import * as WebBrowser from 'expo-web-browser';
+import { DOCUMENTS_API_URL, DEFAULT_PATIENT_ID } from '../config';
 
 type DocumentFile = {
   name: string;
@@ -145,11 +146,11 @@ export default function DocumentUpload() {
         });
       }
       
-      formData.append('patient_id', '1'); // Using a default patient ID
+      formData.append('patient_id', DEFAULT_PATIENT_ID); // Using default patient ID from config
       formData.append('file_type', file.type.includes('pdf') ? 'lab_result' : 'medical_image');
       
-      // Send the file to the server
-      const uploadResponse = await fetch('http://localhost:5050/api/documents/upload', {
+      // Send the file to the server using the URL from config
+      const uploadResponse = await fetch(`${DOCUMENTS_API_URL}/upload`, {
         method: 'POST',
         body: formData
       });
